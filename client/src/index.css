@@ -1,0 +1,443 @@
+@import 'tailwindcss';
+
+/* 최소 디자인 시스템 (TRD §8): 딥 네이비·차콜 배경, 금색 포인트, 대비가 분명한 판결 색 */
+@theme {
+  --color-court-950: #080c1a;
+  --color-court-900: #0e1429;
+  --color-court-800: #172040;
+  --color-court-700: #26325c;
+  --color-court-500: #5d6a94;
+  --color-court-300: #aab4d2;
+  --color-parchment: #f5efe0;
+  --color-gold-300: #f0d48a;
+  --color-gold-400: #e2b653;
+  --color-gold-500: #c9972f;
+  --color-keep: #3dbb85;
+  --color-discard: #c7392d;
+
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', system-ui, sans-serif;
+  --font-display: 'Noto Serif KR', 'Nanum Myeongjo', AppleMyungjo, ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100dvh;
+    background:
+      radial-gradient(120% 60% at 50% 0%, rgb(38 50 92 / 0.55), transparent 70%),
+      var(--color-court-950);
+    background-attachment: fixed;
+    color: var(--color-parchment);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+/* 피고인석 조명 */
+.court-spotlight {
+  background:
+    radial-gradient(ellipse at 50% 25%, rgb(240 212 138 / 0.07), transparent 65%),
+    var(--color-court-900);
+}
+
+.defendant-stage {
+  overflow: hidden;
+  border: 1px solid rgb(226 182 83 / 0.2);
+  border-radius: 1.5rem;
+}
+
+.defendant-stage__scene {
+  padding: 1.1rem 1.5rem 0;
+}
+
+.defendant-stage__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-court-300);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+.defendant-stage__presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: normal;
+}
+
+.defendant-stage__presence > span {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--color-gold-300);
+}
+
+.defendant-stage__presence--speaking > span {
+  background: var(--color-keep);
+  box-shadow: 0 0 0 3px rgb(61 187 133 / 0.12);
+}
+
+.defendant-stage__portrait {
+  position: relative;
+  width: min(100%, 18rem);
+  aspect-ratio: 1;
+  margin: 1rem auto 0.5rem;
+}
+
+.defendant-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.15));
+  user-select: none;
+}
+
+.defendant-stage__bench {
+  width: 90%;
+  height: 0.5rem;
+  margin-inline: auto;
+  border-radius: 100%;
+  background: linear-gradient(90deg, transparent, rgb(226 182 83 / 0.4), transparent);
+}
+
+.defendant-stage__caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.2rem;
+}
+
+.defendant-stage__caption > span {
+  color: var(--color-court-300);
+  font-size: 0.6875rem;
+}
+
+.defendant-stage__caption > strong {
+  color: var(--color-gold-300);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.sample-defendant {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  border: 1px solid var(--color-court-700);
+  border-radius: 1rem;
+  background: radial-gradient(ellipse at 50% 25%, rgb(240 212 138 / 0.06), transparent 75%);
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.sample-defendant:hover {
+  border-color: var(--color-gold-500);
+  background-color: rgb(226 182 83 / 0.04);
+}
+
+.sample-defendant:focus-visible {
+  outline: 2px solid var(--color-gold-300);
+  outline-offset: 3px;
+}
+
+.sample-defendant__art {
+  width: 7rem;
+  max-width: 100%;
+  height: 7rem;
+  margin-bottom: 0.75rem;
+  object-fit: contain;
+}
+
+.sample-defendant__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.sample-defendant__hint {
+  margin-top: 0.3rem;
+  color: var(--color-court-300);
+  font-size: 0.6875rem;
+}
+
+/* 캐릭터 등장과 말하는 모션. 엔딩 연출은 styles/animations.css 가 맡는다. */
+@keyframes court-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes court-talk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  25% {
+    transform: translateY(-5px) rotate(-1.5deg);
+  }
+  75% {
+    transform: translateY(-2px) rotate(1.5deg);
+  }
+}
+
+.defendant-enter {
+  animation: court-enter 0.5s ease-out both;
+}
+
+.defendant-speaking {
+  animation: court-talk 0.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .defendant-enter,
+  .defendant-speaking {
+    animation: none;
+  }
+}
+
+/* 재판 화면의 공통 틀과 모바일 동선 */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 36rem);
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding: 1.25rem 1rem 2.5rem;
+}
+
+.app-shell--court {
+  padding-bottom: calc(7.5rem + env(safe-area-inset-bottom));
+}
+
+.court-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 1.25rem;
+}
+
+.court-header__brand {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.court-header__brand > p {
+  color: var(--color-gold-300);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.court-header__brand > h1 {
+  margin-top: 0.15rem;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.court-header__tools {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+}
+
+.court-icon-button {
+  display: inline-grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgb(170 180 210 / 0.18);
+  border-radius: 50%;
+  color: var(--color-court-300);
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.court-icon-button:hover,
+.court-icon-button[aria-pressed='true'] {
+  color: var(--color-gold-300);
+  border-color: var(--color-gold-500);
+}
+
+.court-icon-button:focus-visible,
+.court-disclosure > summary:focus-visible {
+  outline: 2px solid var(--color-gold-300);
+  outline-offset: 4px;
+}
+
+.trial-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0 1.25rem;
+}
+
+.trial-progress > ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.trial-progress li {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-court-500);
+  font-size: 0.6875rem;
+}
+
+.trial-progress li > span {
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.trial-progress li.is-reached {
+  color: var(--color-court-300);
+}
+
+.trial-progress li[aria-current='step'] {
+  color: var(--color-gold-300);
+}
+
+.trial-progress__demo {
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgb(226 182 83 / 0.25);
+  border-radius: 999px;
+  color: var(--color-gold-300);
+  font-size: 0.625rem;
+}
+
+.courtroom-layout,
+.courtroom-content {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 1rem;
+}
+
+.courtroom-character .defendant-stage__portrait {
+  width: min(100%, 16rem);
+}
+
+.court-safety-note {
+  padding-left: 0.75rem;
+  border-left: 2px solid rgb(226 182 83 / 0.3);
+  color: var(--color-court-300);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+.court-disclosure {
+  min-width: 0;
+  border: 1px solid rgb(170 180 210 / 0.16);
+  border-radius: 1rem;
+  background: rgb(14 20 41 / 0.5);
+}
+
+.court-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: inherit;
+  list-style: none;
+  cursor: pointer;
+}
+
+.court-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.court-disclosure > summary > span {
+  min-width: 0;
+}
+
+.court-disclosure strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.court-disclosure small {
+  display: block;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  color: var(--color-court-300);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.court-disclosure > summary > svg {
+  flex-shrink: 0;
+  color: var(--color-court-300);
+  transition: transform 180ms ease;
+}
+
+.court-disclosure[open] > summary > svg {
+  transform: rotate(180deg);
+}
+
+.court-disclosure__body {
+  padding: 0 1rem 1rem;
+}
+
+.court-disclosure__body > h3:first-child {
+  margin-top: 0;
+}
+
+.court-verdict-action {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 10;
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(170 180 210 / 0.12);
+  background: rgb(14 20 41 / 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.court-verdict-action > p {
+  color: var(--color-court-300);
+  font-size: 0.6875rem;
+}
+
+.court-verdict-action > button {
+  width: min(100%, 34rem);
+  justify-content: space-between;
+}
+
+.courtroom-content :is(button, input, summary) {
+  scroll-margin-bottom: 8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .court-disclosure > summary > svg {
+    transition: none;
+  }
+}

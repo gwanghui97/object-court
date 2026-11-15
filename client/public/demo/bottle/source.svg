@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="겉면에 긁힌 자국이 있는 파란색 물통">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3ead9"/>
+      <stop offset="1" stop-color="#e6d8be"/>
+    </linearGradient>
+    <linearGradient id="table" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9a877"/>
+      <stop offset="1" stop-color="#b08d5c"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f6fb3"/>
+      <stop offset="0.45" stop-color="#4b93d8"/>
+      <stop offset="1" stop-color="#255a94"/>
+    </linearGradient>
+    <linearGradient id="cap" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1c3f6b"/>
+      <stop offset="0.5" stop-color="#2c5a92"/>
+      <stop offset="1" stop-color="#16335a"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#wall)"/>
+  <rect y="372" width="512" height="140" fill="url(#table)"/>
+  <rect y="372" width="512" height="6" fill="#9a7748" opacity="0.5"/>
+
+  <ellipse cx="256" cy="436" rx="118" ry="20" fill="#5b4326" opacity="0.35"/>
+
+  <!-- 뚜껑 -->
+  <rect x="204" y="62" width="104" height="58" rx="16" fill="url(#cap)"/>
+  <rect x="216" y="50" width="80" height="22" rx="11" fill="#2c5a92"/>
+  <rect x="204" y="96" width="104" height="8" fill="#12294a" opacity="0.55"/>
+  <rect x="198" y="114" width="116" height="16" rx="6" fill="#16335a"/>
+
+  <!-- 몸통 -->
+  <path d="M190 130 h132 q26 8 26 44 v226 q0 34 -34 34 h-116 q-34 0 -34 -34 v-226 q0 -36 26 -44 z" fill="url(#body)"/>
+  <rect x="164" y="214" width="184" height="10" fill="#1f4f86" opacity="0.5"/>
+  <rect x="164" y="348" width="184" height="10" fill="#1f4f86" opacity="0.5"/>
+  <rect x="184" y="150" width="20" height="258" rx="10" fill="#ffffff" opacity="0.28"/>
+
+  <!-- 긁힌 자국 -->
+  <g stroke="#dcecfb" stroke-linecap="round" fill="none" opacity="0.85">
+    <path d="M232 176 l46 22" stroke-width="3"/>
+    <path d="M244 196 l30 14" stroke-width="2"/>
+    <path d="M286 250 l34 -16" stroke-width="3"/>
+    <path d="M222 268 l52 30" stroke-width="2.5"/>
+    <path d="M236 290 l26 15" stroke-width="2"/>
+    <path d="M276 322 l44 12" stroke-width="3"/>
+    <path d="M214 384 l40 -14" stroke-width="2.5"/>
+    <path d="M290 392 l24 10" stroke-width="2"/>
+  </g>
+  <g stroke="#173d6b" stroke-linecap="round" fill="none" opacity="0.4">
+    <path d="M233 179 l46 22" stroke-width="1.5"/>
+    <path d="M223 271 l52 30" stroke-width="1.5"/>
+    <path d="M277 325 l44 12" stroke-width="1.5"/>
+  </g>
+</svg>

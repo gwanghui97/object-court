@@ -33,29 +33,57 @@
 | 스타일·애니메이션 | Tailwind CSS 또는 CSS Modules, CSS keyframes + Web Animations API |
 | 서버 | Node.js + Express + 공식 `openai` 패키지 |
 | 검증 | zod |
-| 호스팅 | Replit |
+| 호스팅 | Vercel (정적 화면 + `/api/*` 함수) |
 | DB·로그인 | 없음 (세션 메모리만 사용) |
 
 AI는 사진 분석, 변론 텍스트, 캐릭터 이미지, 변론 음성에만 쓴다. 전환·귀환·파괴 연출은 브라우저 애니메이션이다.
 
 | 용도 | 기본 모델 | 환경변수 |
 |---|---|---|
-| 사진 분석 + 변론·심문 텍스트 | `gpt-6.1-terra` | `OPENAI_TEXT_MODEL` |
-| 캐릭터 이미지 | `gpt-image-2.5-flare` | `OPENAI_IMAGE_MODEL` |
+| 사진 분석 + 변론·심문 텍스트 | `gpt-5.6-luna` | `OPENAI_TEXT_MODEL` |
+| 캐릭터 이미지 | `gpt-image-1-mini` | `OPENAI_IMAGE_MODEL` |
 | 변론 음성 | `gpt-4o-mini-tts` | `OPENAI_TTS_MODEL` |
+
+TRD가 처음 고른 `gpt-6.1-terra`, `gpt-image-2.5-flare`는 이 프로젝트의 API 키로 접근되지 않아(403), 2026-11-15에 위 모델로 바꾸고 실제 호출로 재판 1회를 확인했다.
 
 모델 ID는 코드에 직접 쓰지 않고 환경변수에서 읽는다. `gpt-image-1`, `dall-e-3`, `tts-1` 같은 예전 ID는 종료됐거나 필요한 기능이 없으니 쓰지 않는다. 선정 근거와 가격은 [TRD §2.1](./TRD.md#21-모델-선정)에 있다.
 
 ## 실행
 
-아직 코드가 들어오지 않았다. `package.json`이 생기면 설치·실행 명령을 이 절에 적는다.
+Node.js 20.19 이상과 pnpm이 필요하다.
 
-환경변수는 아래와 같다. 로컬에서는 `.env`에, Replit에서는 Secrets에 넣는다.
+```bash
+pnpm install
+cp .env.example .env    # OPENAI_API_KEY 를 채운다
+pnpm dev                # http://localhost:3000
+```
+
+| 명령 | 하는 일 |
+|---|---|
+| `pnpm dev` | 개발 서버. Express가 `/api/*`와 Vite 개발 화면을 한 포트로 제공한다. 서버 코드를 고치면 다시 시작하고 화면은 바로 갱신된다 |
+| `pnpm build` | 클라이언트를 `dist/client`로 빌드한다 |
+| `pnpm start` | 빌드본을 로컬에서 실행한다. 빌드된 클라이언트와 `/api/*`를 한 포트로 제공한다. 먼저 `pnpm build`를 돌린다 |
+| `pnpm typecheck` | 클라이언트와 서버의 타입을 검사한다 |
+
+`OPENAI_API_KEY`가 없어도 서버는 뜬다. AI 라우트는 `AI_UNAVAILABLE` 오류를 돌려주고, 샘플 재판은 끝까지 진행된다. `GET /api/health`의 `aiConfigured`로 키 설정 여부를 볼 수 있다.
+
+### Vercel 배포
+
+화면은 `dist/client`의 정적 파일로, `/api/*`는 함수 하나(`api/index.ts`가 `server/app.ts`의 Express 앱을 내보냄)로 배포된다. 설정은 `vercel.json`에 있다.
+
+1. Vercel에서 GitHub 저장소를 새 프로젝트로 연결한다. 빌드 설정은 `vercel.json`을 따르므로 손대지 않는다.
+2. 프로젝트 환경변수에 `OPENAI_API_KEY`, `OPENAI_TEXT_MODEL=gpt-5.6-luna`, `OPENAI_IMAGE_MODEL=gpt-image-1-mini`, `OPENAI_TTS_MODEL=gpt-4o-mini-tts`, `OPENAI_TTS_VOICE=marin`을 넣는다.
+3. 배포한다. 환경변수를 나중에 바꿨으면 다시 배포해야 반영된다.
+4. 배포 주소의 `/api/health`에서 `aiConfigured: true`를 확인하고 `?demo=1` 샘플 재판을 끝까지 돌려 본다.
+
+Vercel 함수는 요청 본문을 4.5MB까지만 받는다. 사진은 브라우저에서 줄여서 보내므로 보통 이보다 훨씬 작다. 함수 실행 시간 상한은 60초로 잡았다(서버의 OpenAI 호출 제한 시간은 50초 이내).
+
+환경변수는 아래와 같다. 로컬에서는 `.env`에, Vercel에서는 프로젝트 환경변수에 넣는다.
 
 ```dotenv
 OPENAI_API_KEY=                       # 서버 전용. 클라이언트 번들·저장소에 넣지 않는다
-OPENAI_TEXT_MODEL=gpt-6.1-terra
-OPENAI_IMAGE_MODEL=gpt-image-2.5-flare
+OPENAI_TEXT_MODEL=gpt-5.6-luna
+OPENAI_IMAGE_MODEL=gpt-image-1-mini
 OPENAI_TTS_MODEL=gpt-4o-mini-tts
 OPENAI_TTS_VOICE=marin
 PORT=3000
@@ -78,12 +106,14 @@ PORT=3000
 
 | 실패 | 대신 쓰는 것 |
 |---|---|
-| 캐릭터 이미지 생성 실패·지연 | 원본 사진에 얼굴·팔·다리를 합성한 폴백 캐릭터 |
+| 캐릭터 이미지 생성 실패·지연 | 원본을 가리지 않는 증거 사진 카드 |
 | OpenAI 음성 실패·지연 | 브라우저 음성, 그것도 없으면 자막만 |
 | 분석 API 실패·지연 | 재시도 또는 샘플 재판 |
 | 심문 API 실패 | 추천 질문 3개의 정적 답변 |
 
 **샘플 재판:** `?demo=1` 또는 홈의 ‘샘플 재판’ 버튼으로 물통(무죄)·이어폰(유죄)을 AI 호출 없이 끝까지 볼 수 있다. 화면에 데모 모드임을 표시한다. 전체 표는 [TRD §10](./TRD.md#10-실패대체-경로)에 있다.
+
+샘플 캐릭터는 imagegen으로 제작한 투명 배경 PNG(`client/public/demo/*/character.png`)다. 생성 방식과 최종 프롬프트는 [character-prompts.json](./output/imagegen/character-prompts.json)에 기록했다.
 
 ## 폴더 구조
 

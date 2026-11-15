@@ -1,0 +1,41 @@
+# 의존성
+node_modules/
+.pnpm-store/
+
+# 빌드 산출물·캐시
+dist/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# 비밀값: .env.example 만 커밋한다
+.env
+.env.*
+!.env.example
+
+# 로그
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 에디터
+.idea/
+.vscode/
+*.swp
+
+# Replit 이 만드는 폴더 (.replit, replit.nix 는 설정이라 커밋한다)
+.cache/
+.upm/
+.local/
+.config/
+
+# Claude Code 개인 설정·작업 폴더 (.claude/agents, .claude/skills 는 커밋한다)
+.claude/settings.local.json
+.claude/worktrees/
+
+# 브라우저 검증 산출물
+.playwright-mcp/
+test-results/
+playwright-report/

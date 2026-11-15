@@ -2,10 +2,10 @@
 
 - **프로젝트:** 사물 재판소 (Object Court)
 - **팀:** 사이다 | Y-AI 메이커톤 CASE 04
-- **버전:** v1.1 / 2026-11-15 (v1.0 대비 바뀐 점은 문서 끝 [변경 이력](#변경-이력))
+- **버전:** v1.2 / 2026-11-15 (바뀐 점은 문서 끝 [변경 이력](#변경-이력))
 - **타임박스:** 총 180분, 배포·리허설 포함
-- **마감:** 2026-11-15 17:10 KST 까지 완성(배포·리허설 포함). 여러 Claude 세션이 병렬로 작업한다. 시각별 기준은 [§11](#11-180분-작업-계획-및-우선순위)
-- **기술 방향:** Replit에서 단일 React 웹앱 + 최소 API 서버. AI는 사진 분석·역할극 텍스트·이미지 생성·**캐릭터 음성(TTS)** 에 사용하고 **애니메이션은 브라우저에서 처리**한다. AI 호출은 모두 서버에서 `OPENAI_API_KEY` 하나로 한다.
+- **마감:** 2026-11-15 17:00 KST 까지 완성(배포·리허설 포함). 여러 Claude 세션이 병렬로 작업한다. 시각별 기준은 [§11](#11-180분-작업-계획-및-우선순위)
+- **기술 방향:** 단일 React 웹앱 + 최소 API 서버를 Vercel에 배포한다(처음 계획은 Replit). AI는 사진 분석·역할극 텍스트·이미지 생성·**캐릭터 음성(TTS)** 에 사용하고 **애니메이션은 브라우저에서 처리**한다. AI 호출은 모두 서버에서 `OPENAI_API_KEY` 하나로 한다.
 - **함께 보는 문서:** [PRD.md](./PRD.md) · [README.md](./README.md)
 
 ## 1. 설계 원칙
@@ -25,39 +25,38 @@
 | 스타일 | Tailwind CSS 또는 CSS Modules | 법정 분위기·모바일 대응 빠른 개발 |
 | 애니메이션 | CSS keyframes + Web Animations API | 의인화→원물 전환, 망치·쓰레기통·귀환 구현 |
 | 변론 음성 | OpenAI Speech API (`POST /v1/audio/speech`, `gpt-4o-mini-tts`) | `instructions`로 말투·감정을 지시해 캐릭터 연기 가능. 폴백: Web Speech API(`speechSynthesis`) → 자막 |
-| 서버 | Node.js + Express + 공식 `openai` npm 패키지 (Vite와 동일 Replit 프로젝트) | API 키 비공개, OpenAI API 호출 중계 |
-| 사진 분석·텍스트 | OpenAI Responses API + Structured Outputs (`gpt-6.1-terra`) | 사진 입력과 JSON 스키마 고정 출력을 한 번에 처리 |
-| 캐릭터 생성 | OpenAI Image API `images.edit` (`gpt-image-2.5-flare`) | 업로드 사진을 입력 이미지로 넘겨 의인화 |
+| 서버 | Node.js + Express + 공식 `openai` npm 패키지 (Vite와 같은 저장소, Vercel 함수로 배포) | API 키 비공개, OpenAI API 호출 중계 |
+| 사진 분석·텍스트 | OpenAI Responses API + Structured Outputs (`gpt-5.6-luna`) | 사진 입력과 JSON 스키마 고정 출력을 한 번에 처리 |
+| 캐릭터 생성 | OpenAI Image API `images.edit` (`gpt-image-1-mini`) | 업로드 사진을 입력 이미지로 넘겨 의인화 |
 | 검증 | zod | 구조화 출력 스키마와 요청 검증을 한 정의로 공유 |
-| 호스팅 | Replit | 대회 환경에 맞춘 실행/공유 |
+| 호스팅 | Vercel | 정적 클라이언트와 `/api/*` 함수를 한 주소에서 제공 |
 | DB | 없음 | 3시간 데모에 불필요 |
 
 ### 2.1 모델 선정
 
-아래 모델 ID·가격·종료일은 **2026-11-15에 OpenAI 공식 문서에서 확인한 값**이다([§15](#15-참고-문서)). 계정마다 접근 권한이 다를 수 있으므로 작업을 시작하면서 모델별로 1회씩 호출해 확인한다. 이 문서를 쓰면서 실제 API를 호출해 보지는 않았다.
+기본 모델은 **2026-11-15에 실제 호출로 확인한 값**이다. 처음에는 공식 문서([§15](#15-참고-문서))를 보고 `gpt-6.1-terra`와 `gpt-image-2.5-flare`를 골랐으나, 이 프로젝트의 API 키로는 두 모델 모두 `403 model_not_found`가 나와 접근 권한이 있는 모델로 바꿨다.
 
-| 용도 | 기본 모델 | 환경변수 | 호출 | 고른 이유 | 대안 |
+| 용도 | 기본 모델 | 환경변수 | 호출 | 고른 이유 | 처음 고른 모델 |
 |---|---|---|---|---|---|
-| 사진 분석 + 변론·심문 텍스트 | `gpt-6.1-terra` | `OPENAI_TEXT_MODEL` | `openai.responses.parse` | 문서가 시각 추론과 자연스러운 글쓰기에 빠르고 효율적인 모델로 소개. `reasoning.effort`에 `none`·`low` 지원 | `gpt-6-luna`(가장 저렴, 대량 처리용) |
-| 캐릭터 이미지 | `gpt-image-2.5-flare` | `OPENAI_IMAGE_MODEL` | `openai.images.edit` | 문서가 빠른 일상 이미지 생성용으로 안내 | `gpt-image-2.5-sunburst`(편집 정밀도 우선, 엔드포인트 기본값, 단가 동일) |
-| 변론 음성 | `gpt-4o-mini-tts` | `OPENAI_TTS_MODEL` | `openai.audio.speech.create` | `instructions`로 말투 제어, HTTP 1회 호출로 끝남 | 브라우저 Web Speech API(폴백) |
+| 사진 분석 + 변론·심문 텍스트 | `gpt-5.6-luna` | `OPENAI_TEXT_MODEL` | `openai.responses.parse` | 이 키로 호출되는 것을 확인. 사진 입력과 구조화 출력을 쓴다 | `gpt-6.1-terra` (접근 불가) |
+| 캐릭터 이미지 | `gpt-image-1-mini` | `OPENAI_IMAGE_MODEL` | `openai.images.edit` | 이 키로 호출되는 것을 확인. 입력 이미지를 받아 편집한다 | `gpt-image-2.5-flare` (접근 불가) |
+| 변론 음성 | `gpt-4o-mini-tts` (목소리 `marin`) | `OPENAI_TTS_MODEL` | `openai.audio.speech.create` | `instructions`로 말투 제어, HTTP 1회 호출로 끝남 | 변경 없음. 폴백은 브라우저 Web Speech API |
 
-**가격(표준, 100만 토큰당):**
+**가격(표준, 100만 토큰당, 공식 가격표에서 확인한 것만):**
 
 | 모델 | 입력 | 출력 |
 |---|---|---|
-| `gpt-6.1-terra` | $1.00 | $5.00 |
-| `gpt-6-luna` | $0.10 | $0.50 |
-| `gpt-image-2.5-flare` / `-sunburst` | 텍스트 $5.00, 이미지 $8.00 | 이미지 $30.00 |
+| `gpt-image-1-mini` | 텍스트 $2.00, 이미지 $2.50 | 이미지 $8.00 |
 | `gpt-4o-mini-tts` | 텍스트 $0.60 | 오디오 $12.00 |
 
-재판 1회 비용의 대부분은 이미지 생성이다. 이미지 1장당 금액은 문서에 고정값으로 나와 있지 않으므로 리허설 뒤 Usage 대시보드에서 확인한다.
+`gpt-5.6-luna`의 단가는 확인하지 못했다. 재판 1회 비용은 리허설 뒤 Usage 대시보드에서 확인한다.
 
 **주의할 점:**
 
-- AI 코딩 도구는 예전 모델 ID를 넣는 일이 잦다. `gpt-image-1`은 2026-10-23에, `dall-e-2`·`dall-e-3`는 2026-05-12에 종료되어 호출이 실패한다. `tts-1`·`tts-1-hd`는 `instructions`를 지원하지 않는다. 생성된 코드의 모델 ID를 위 표와 대조한다.
-- GPT 이미지 모델은 계정의 **조직 인증(API Organization Verification)** 이 필요할 수 있다. 인증이 안 되어 있으면 이미지 호출이 거부되므로 먼저 확인한다.
-- `gpt-image-2.6-sunburst`·`gpt-image-2.6-flare`도 엔드포인트 목록에 있으나 엔드포인트 기본값은 2.5 계열이다. 이 문서는 2.5 계열을 기준으로 한다.
+- AI 코딩 도구는 예전 모델 ID를 넣는 일이 잦다. `gpt-image-1`은 2026-10-23에, `dall-e-2`·`dall-e-3`는 2026-05-12에 종료되어 호출이 실패한다. `tts-1`·`tts-1-hd`는 `instructions`를 지원하지 않는다. `gpt-image-1-mini`는 `gpt-image-1`과 다른 모델이고 이 프로젝트가 쓰는 모델이다. 생성된 코드의 모델 ID를 위 표와 대조한다.
+- 모델마다 받는 옵션이 다르다. 서버는 `complexity`나 `reasoning`을 모델이 거절하면 그 옵션을 빼고 한 번 더 부른다.
+- 키나 계정이 바뀌면 접근 가능한 모델이 달라질 수 있다. 모델은 환경변수로만 바꾸고, 바꾼 뒤 모델별로 1회씩 호출해 확인한다.
+- GPT 이미지 모델은 계정의 **조직 인증(API Organization Verification)** 이 필요할 수 있다.
 
 ### 2.2 TTS 선정 근거
 
@@ -211,7 +210,7 @@ import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 
 const response = await openai.responses.parse({
-  model: process.env.OPENAI_TEXT_MODEL ?? 'gpt-6.1-terra',
+  model: process.env.OPENAI_TEXT_MODEL ?? 'gpt-5.6-luna',
   reasoning: { effort: 'low' },
   instructions: ANALYZE_SYSTEM_PROMPT,
   input: [
@@ -230,7 +229,7 @@ const analysis = response.output_parsed; // 거절·불완전 응답이면 null 
 ```
 
 - Structured Outputs 스키마는 모든 필드를 필수로 두고 선택 필드를 만들지 않는다. 글자 수 같은 길이 제한은 프롬프트에 적고 서버에서 zod로 한 번 더 확인한다.
-- `reasoning.effort`는 `low`에서 시작한다. 응답이 느리면 `none`으로 낮춘다(`gpt-6.1-terra`, `gpt-6-luna` 지원).
+- `reasoning.effort`는 `low`로 보낸다. 모델이 이 옵션을 거절하면 빼고 한 번 더 부른다.
 - `detail`은 `auto`로 시작한다. 사진을 미리 축소해 보내므로 크기에 상한이 있다. 더 빨라야 하면 `low`(512px 안으로 축소 처리)로 바꾸고 관찰 내용이 너무 거칠어지는지 확인한다.
 
 **AI 시스템 지침:**
@@ -249,7 +248,7 @@ const analysis = response.output_parsed; // 거절·불완전 응답이면 null 
 - 요청: `multipart/form-data` — `image`, `objectName`(최대 40자), `characterBrief`(최대 300자)
 - 성공 응답: `{ "imageDataUrl": "data:image/jpeg;base64,..." }` — GPT 이미지 모델은 URL을 주지 않고 base64(`b64_json`)만 반환하므로 data URL로 고정한다.
 - 서버 처리: 원본 사진을 입력 이미지로 넘겨 `images.edit` 호출. 원래 색·형태 보존, 귀여운 얼굴/팔다리, 피고인석, 법정 배경.
-- **동일 물체 재현 정확성을 보장하지 않는다.** 닮은 정도가 부족하면 `OPENAI_IMAGE_MODEL`을 `gpt-image-2.5-sunburst`로 바꿔 비교한다.
+- **동일 물체 재현 정확성을 보장하지 않는다.** 닮은 정도가 부족하면 `OPENAI_IMAGE_MODEL`을 접근 권한이 있는 다른 이미지 모델로 바꿔 비교한다.
 - 실패 시 HTTP 502 등과 안전한 오류 객체 반환; 클라이언트는 폴백 합성 캐릭터로 진행.
 
 **호출 조각:**
@@ -258,12 +257,12 @@ const analysis = response.output_parsed; // 거절·불완전 응답이면 null 
 import OpenAI, { toFile } from 'openai';
 
 const result = await openai.images.edit({
-  model: process.env.OPENAI_IMAGE_MODEL ?? 'gpt-image-2.5-flare',
+  model: process.env.OPENAI_IMAGE_MODEL ?? 'gpt-image-1-mini',
   image: await toFile(file.buffer, 'object.jpg', { type: file.mimetype }),
   prompt,
   size: '1024x1024',        // 문서: 정사각이 보통 가장 빠르다
-  quality: 'low',           // 문서: 빠른 초안용. 여유가 있으면 'medium'과 비교
-  complexity: 'low',        // 생략하면 'high'이고 지연이 늘 수 있다
+  quality: 'medium',        // 작은 얼굴이 또렷하게 나오도록 'low'에서 올렸다
+  complexity: 'low',        // 모델이 이 옵션을 거절하면 빼고 한 번 더 부른다
   output_format: 'jpeg',    // 문서: png보다 빠르다
   output_compression: 80,
   n: 1,
@@ -390,7 +389,7 @@ Character note: {voiceDirection}
 | `/api/speech` | 20초 | 0회 | 10초 안에 오지 않거나 오류면 브라우저 음성으로 전환 |
 | `/api/cross-examine` | 20초 | 0회 | 실패 시 정적 답변 |
 
-숫자는 출발값이다. 리허설에서 실제 응답 시간을 재고 조정한다. Replit 배포 환경에서 90초짜리 요청이 중간에 끊기지 않는지 확인한다.
+숫자는 출발값이다. 리허설에서 실제 응답 시간을 재고 조정한다. Vercel 함수의 최대 실행 시간 설정이 가장 긴 타임아웃(90초)보다 긴지 확인한다. 짧으면 `/api/character`가 중간에 끊긴다.
 
 ## 6. 파일 구성
 
@@ -402,25 +401,34 @@ object-court/
 ├─ client/
 │  ├─ index.html
 │  ├─ public/
-│  │  └─ demo/                      # 샘플 재판 자산 (물통·이어폰)
-│  │     ├─ bottle/  { source.jpg, character.jpg, analysis.json, defense.mp3 }
-│  │     └─ earphone/{ source.jpg, character.jpg, analysis.json, defense.mp3 }
+│  │  └─ demo/                      # 샘플 재판 자산
+│  │     ├─ bottle/   { source.svg, character.png, defense.mp3 }
+│  │     └─ earphone/ { source.svg, character.png }   # 변론은 기기 음성으로 읽는다
 │  └─ src/
+│     ├─ main.tsx
+│     ├─ index.css                  # Tailwind 진입점과 전역 스타일
 │     ├─ App.tsx
+│     ├─ assets/                    # 손·망치·쓰레기통 등 엔딩용 SVG
 │     ├─ components/
 │     │  ├─ EvidenceUpload.tsx
 │     │  ├─ DefendantStage.tsx
+│     │  ├─ FallbackCharacter.tsx   # 원본 사진 + 눈·팔·다리 폴백 캐릭터
 │     │  ├─ DefenseSpeech.tsx
+│     │  ├─ SpeechPlayer.tsx        # 변론·답변 음성 재생 버튼
+│     │  ├─ CrossExamination.tsx    # 반대 심문 카드 (P1)
 │     │  ├─ VerdictButtons.tsx
 │     │  ├─ KeepEnding.tsx
 │     │  └─ DiscardEnding.tsx
 │     ├─ hooks/
 │     │  ├─ useTrial.ts
 │     │  └─ useSpeech.ts            # 프리페치·재생·폴백
-│     ├─ lib/resizeImage.ts         # 업로드 전 축소·재인코딩
-│     ├─ data/sampleTrial.ts
-│     ├─ styles/animations.css
-│     └─ types/trial.ts
+│     ├─ lib/
+│     │  ├─ api.ts                  # 서버 API 4개 호출
+│     │  ├─ resizeImage.ts          # 업로드 전 축소·재인코딩
+│     │  └─ ui.ts                   # 화면이 함께 쓰는 Tailwind 클래스 묶음
+│     ├─ data/sampleTrial.ts        # 샘플 재판 2종의 분석 내용(상수). JSON 파일로 두지 않는다
+│     ├─ styles/animations.css      # 엔딩·폴백 캐릭터 연출. 엔딩 컴포넌트가 직접 import
+│     └─ types/trial.ts             # 상태 타입. API 형식은 server/lib/schema.ts 에서 다시 내보낸다
 └─ server/
    ├─ index.ts
    ├─ routes/analyze.ts
@@ -440,8 +448,8 @@ object-court/
 
 ```dotenv
 OPENAI_API_KEY=                       # 서버 전용. 클라이언트 번들·저장소에 넣지 않는다
-OPENAI_TEXT_MODEL=gpt-6.1-terra
-OPENAI_IMAGE_MODEL=gpt-image-2.5-flare
+OPENAI_TEXT_MODEL=gpt-5.6-luna
+OPENAI_IMAGE_MODEL=gpt-image-1-mini
 OPENAI_TTS_MODEL=gpt-4o-mini-tts
 OPENAI_TTS_VOICE=marin
 PORT=3000
@@ -552,16 +560,16 @@ function onListen() {
 | 원본 사진 인식 곤란 | 사용자에게 물건 이름 직접 입력 허용(P1) 또는 샘플 사용 |
 | 네트워크 끊김 | 세션 상태 보존, 다시 시도/홈 버튼 |
 
-**데모 모드:** `?demo=1` 또는 홈의 `샘플 재판` 버튼으로 물통(무죄)·이어폰(유죄) 중 선택. 원본 샘플 이미지·캐릭터 이미지·분석 JSON·**변론 음성 MP3**를 `client/public/demo/`에 사전 배치한다. 데모 모드임을 표시하며 실제 AI 호출 성공인 것처럼 속이지 않는다. 미리 만든 음성에도 ‘AI 생성 음성’ 표시를 붙인다. MP3를 준비하지 못했으면 브라우저 음성으로 읽는다.
+**데모 모드:** `?demo=1` 또는 홈의 `샘플 재판` 버튼으로 물통(무죄)·이어폰(유죄) 중 선택. 샘플 그림(원래 물건 SVG, 미리 만든 캐릭터 PNG)과 물통의 **변론 음성 MP3**는 `client/public/demo/`에, 분석 내용은 `client/src/data/sampleTrial.ts`에 둔다. 데모 모드임을 표시하며 실제 AI 호출 성공인 것처럼 속이지 않는다. 미리 만든 음성에도 ‘AI 생성 음성’ 표시를 붙인다. MP3를 준비하지 못했으면 브라우저 음성으로 읽는다.
 
 ## 11. 180분 작업 계획 및 우선순위
 
-> **마감: 2026-11-15 17:10 KST.** 이 시각까지 공개 URL에서 전체 흐름이 돌아야 한다. 이 문구를 적은 15:23 기준으로 남은 시간은 107분이다.
+> **마감: 2026-11-15 17:00 KST.** 이 시각까지 공개 URL(Vercel)에서 전체 흐름이 돌아야 한다. 처음 마감은 17:10이었고 16:13에 17:00으로 당겨졌다.
 >
-> 여러 Claude 세션이 병렬로 작업한다. 아래 표의 분 단위는 한 줄로 이어서 진행하는 180분 기준이라 그대로 맞지 않는다. 순서와 종료 게이트는 그대로 따르고, 시각은 마감에서 거꾸로 센다.
+> 여러 Claude 세션이 병렬로 작업한다. 아래 표의 분 단위는 한 줄로 이어서 진행하는 180분 기준이라 그대로 맞지 않는다. 순서와 종료 게이트는 그대로 따른다. 시각별 일정은 `docs/PLAN.md`가 기준이다.
 >
-> - **16:25** (마감 45분 전, 컷오프 규칙의 135분): P1 작업을 멈추고 검증·배포로 넘어간다.
-> - **16:45** (마감 25분 전, 컷오프 규칙의 155분): 새 기능을 넣지 않는다. 배포본 시연과 오류 복구 점검만 한다.
+> - **16:25** (컷오프 규칙의 135분): P1 작업을 멈추고 검증·배포로 넘어간다.
+> - **16:45** (컷오프 규칙의 155분): 새 기능을 넣지 않는다. 배포본 시연과 오류 복구 점검만 한다.
 
 | 시간 | 개발 항목 | 종료 게이트 |
 |---|---|---|
@@ -570,7 +578,7 @@ function onListen() {
 | 60~95분 | `/api/character`, 로딩/폴백, 법정 화면, 음성 프리페치·재생·폴백 | 캐릭터 또는 폴백과 자막/음성 동작 |
 | 95~135분 | 판결 분기, 무죄 귀환, 유죄 망치/쓰레기통 | 두 엔딩 모두 로컬 시연 가능 |
 | 135~155분 | 결과 가이드, 심문 1회 또는 보완, 목소리 고르기 | 한 번의 전체 재판 완료 |
-| 155~180분 | Replit 배포, 모바일/오류 테스트, 1분 리허설 | 공개 URL에서 전체 플로우 실행 |
+| 155~180분 | Vercel 배포, 모바일/오류 테스트, 1분 리허설 | 공개 URL에서 전체 플로우 실행 |
 
 ### 컷오프 규칙
 
@@ -605,13 +613,14 @@ function onListen() {
 
 ## 13. 배포·운영 체크리스트
 
-- [ ] Replit Secrets에 `OPENAI_API_KEY` 저장 (`.env` 커밋 금지)
-- [ ] Replit Secrets에 `OPENAI_TEXT_MODEL`, `OPENAI_IMAGE_MODEL`, `OPENAI_TTS_MODEL`, `OPENAI_TTS_VOICE` 설정
-- [ ] 세 모델 접근 권한 확인(텍스트·이미지·TTS 각 1회 호출), 이미지 모델용 조직 인증 여부 확인
-- [ ] 코드에 예전 모델 ID(`gpt-image-1`, `dall-e-3`, `tts-1` 등)가 남아 있지 않은지 검색
-- [ ] 프런트/서버가 동일 공개 URL에서 접근 가능하도록 구성(Express가 빌드된 클라이언트와 `/api/*`를 함께 제공)
+- [ ] Vercel 프로젝트 환경변수에 `OPENAI_API_KEY` 저장 (`.env` 커밋 금지)
+- [ ] Vercel 환경변수에 `OPENAI_TEXT_MODEL`, `OPENAI_IMAGE_MODEL`, `OPENAI_TTS_MODEL`, `OPENAI_TTS_VOICE` 설정. 환경변수를 바꾸면 다시 배포해야 반영된다
+- [ ] 세 모델 접근 권한 확인(텍스트·이미지·TTS 각 1회 호출). 2026-11-15 기준 `gpt-5.6-luna`, `gpt-image-1-mini`, `gpt-4o-mini-tts` 확인됨
+- [ ] 코드에 종료된 모델 ID(`gpt-image-1`, `dall-e-3`)나 `tts-1`이 남아 있지 않은지 검색. `gpt-image-1-mini`는 대상이 아니다
+- [ ] 프런트/서버가 동일 공개 URL에서 접근 가능한지 확인(정적 클라이언트와 `/api/*` 함수)
 - [ ] 서버 라우트에서 HTTP/타임아웃/응답 파싱 오류 처리
-- [ ] 배포 환경에서 긴 요청(`/api/character`)이 끊기지 않는지 확인
+- [ ] Vercel 함수 요청 본문 한도(4.5MB) 안에 업로드가 들어가는지 확인. 브라우저 축소본은 이보다 훨씬 작아야 하고, 서버의 8MB 제한보다 이 한도가 먼저 걸린다
+- [ ] Vercel 함수 최대 실행 시간이 `/api/character` 타임아웃(90초)보다 긴지 확인
 - [ ] 시연용 사진 2~3개와 데모 분석 결과·변론 음성 MP3 준비
 - [ ] 한국어 변론 한 줄로 목소리 2~3개를 비교하고 `OPENAI_TTS_VOICE` 확정
 - [ ] 이미지 생성 실패, TTS 실패 상황을 실제로 시뮬레이션
@@ -648,6 +657,13 @@ function onListen() {
 **개발 완료 정의:** 사진 1장으로 재판이 열리고, AI가 물건의 마지막 변론을 **목소리와 자막으로** 제공하며, **최종 판결은 사람에게 있고**, 그 선택에 따라 **귀환 또는 가상 폐기/파괴 엔딩**이 끊김 없이 실행된다.
 
 ## 변경 이력
+
+**v1.2 (2026-11-15)**
+
+- 기본 모델을 실제 호출로 확인한 것으로 교체: 텍스트 `gpt-5.6-luna`, 이미지 `gpt-image-1-mini`. 이 키로 `gpt-6.1-terra`, `gpt-image-2.5-flare`는 `403 model_not_found` (§2, §2.1, §5.1, §5.2, §6, §13)
+- 배포 대상을 Replit에서 Vercel로 변경, 요청 본문 4.5MB 한도와 함수 실행 시간 확인 항목 추가 (§2, §5.6, §11, §13)
+- 마감을 17:00 KST로 변경 (머리말, §11)
+- 파일 트리와 데모 모드 설명을 실제 파일에 맞춤: 샘플 SVG·캐릭터 PNG·물통 변론 MP3, `sampleTrial.ts` 상수 (§6, §10)
 
 **v1.1 (2026-11-15)**
 

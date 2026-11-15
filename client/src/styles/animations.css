@@ -1,0 +1,550 @@
+/*
+ * 사물 재판소 — 엔딩과 폴백 캐릭터 연출.
+ * 클래스는 모두 oc- 로 시작하고 Tailwind 설정에 기대지 않는다.
+ * KeepEnding / DiscardEnding / FallbackCharacter 가 각자 이 파일을 import 한다.
+ */
+
+/* ---------- 공통 틀 ---------- */
+
+/* 전역 리셋이 없어도 padding 이 폭을 넘기지 않게 한다 */
+.oc-ending,
+.oc-ending *,
+.oc-fallback,
+.oc-fallback * {
+  box-sizing: border-box;
+}
+
+.oc-ending {
+  --oc-panel: #1a2540;
+  --oc-gold: #e2b857;
+  --oc-ink: #f4efe2;
+  --oc-muted: #b9c0d4;
+  --oc-warm: #ffd98a;
+
+  display: grid;
+  gap: 0.875rem;
+  justify-items: center;
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+  color: var(--oc-ink);
+}
+
+.oc-stage {
+  position: relative;
+  width: min(100%, 22rem);
+  aspect-ratio: 10 / 11;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background: radial-gradient(120% 90% at 50% 20%, #24345c 0%, #111a2e 70%);
+  box-shadow: inset 0 0 0 1px rgb(226 184 87 / 0.35);
+}
+
+.oc-object {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  z-index: 2;
+  width: 62%;
+  aspect-ratio: 1;
+  border-radius: 1.125rem;
+  transform: translate(-50%, -50%);
+}
+
+.oc-photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: inherit;
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.35);
+  user-select: none;
+}
+
+/* 투명 캐릭터는 원본 사진의 크롭·그림자 없이 전신을 보여 준다. */
+.oc-character-art {
+  object-fit: contain;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.oc-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+}
+
+/* 정사각 칸 안에서는 폴백 캐릭터가 높이를 꽉 채운다: 폭 = 200 / 230 */
+.oc-layer .oc-fallback {
+  width: 86.96%;
+  max-width: none;
+  margin: 0;
+}
+
+.oc-status {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--oc-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+}
+
+/* ---------- 캐릭터 → 원래 물건 (컷 전환) ---------- */
+
+.oc-swap-out {
+  animation: oc-swap-out 0.6s ease-in forwards;
+}
+
+.oc-swap-in {
+  animation: oc-swap-in 0.6s ease-out forwards;
+}
+
+@keyframes oc-swap-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.9); }
+}
+
+@keyframes oc-swap-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes oc-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes oc-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ---------- 무죄: 손으로 귀환 ---------- */
+
+.oc-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 50% at 50% 64%, rgb(255 217 138 / 0.45), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.oc-glow--on {
+  opacity: 1;
+}
+
+.oc-hand {
+  position: absolute;
+  left: 50%;
+  bottom: -4%;
+  z-index: 1;
+  width: 70%;
+  height: auto;
+  transform: translate(-50%, 110%);
+}
+
+.oc-hand--rise {
+  animation: oc-hand-rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes oc-hand-rise {
+  from { transform: translate(-50%, 110%); }
+  to { transform: translate(-50%, 0); }
+}
+
+.oc-object--return {
+  animation: oc-return 1.2s cubic-bezier(0.3, 0.7, 0.2, 1) 0.25s forwards;
+}
+
+@keyframes oc-return {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  55% { transform: translate(-50%, -34%) scale(0.66) rotate(-5deg); }
+  100% { transform: translate(-50%, -5%) scale(0.5) rotate(0deg); }
+}
+
+.oc-spark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 3;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--oc-warm);
+  box-shadow: 0 0 0.6rem 0.15rem rgb(255 217 138 / 0.7);
+  opacity: 0;
+  animation: oc-spark 1.6s ease-out var(--delay) 2 both;
+  pointer-events: none;
+}
+
+@keyframes oc-spark {
+  0% { opacity: 0; transform: translateY(0) scale(0.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-3.5rem) scale(1); }
+}
+
+/* ---------- 유죄: 가상 망치 ---------- */
+
+.oc-gavel {
+  position: absolute;
+  right: 6%;
+  top: 2%;
+  z-index: 4;
+  width: 34%;
+  height: auto;
+  opacity: 0;
+  transform: rotate(20deg);
+  transform-origin: 50% 96%;
+}
+
+/* 타격 지점은 78% (약 0.48초). DiscardEnding 의 HAMMER_IMPACT_AT 과 맞춘다 */
+.oc-gavel--strike {
+  animation: oc-strike 0.62s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+}
+
+@keyframes oc-strike {
+  0% { opacity: 0; transform: rotate(10deg); }
+  30% { opacity: 1; transform: rotate(32deg); }
+  78% { opacity: 1; transform: rotate(-76deg); }
+  88% { opacity: 1; transform: rotate(-66deg); }
+  100% { opacity: 1; transform: rotate(-72deg); }
+}
+
+.oc-object--hit {
+  animation: oc-shake 0.45s ease-in-out;
+}
+
+@keyframes oc-shake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  20% { transform: translate(-54%, -49%) rotate(-3deg); }
+  40% { transform: translate(-46%, -51%) rotate(3deg); }
+  60% { transform: translate(-52%, -50%) rotate(-2deg); }
+  80% { transform: translate(-49%, -50%) rotate(1deg); }
+}
+
+.oc-crack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.oc-flash {
+  position: absolute;
+  left: 55%;
+  top: 28%;
+  z-index: 5;
+  width: 46%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, rgb(255 233 170 / 0.8) 35%, transparent 70%);
+  opacity: 0;
+  animation: oc-flash 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes oc-flash {
+  0% { opacity: 0.95; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+.oc-piece {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(var(--t) var(--r) var(--b) var(--l));
+  transform-origin: var(--ox) var(--oy);
+  animation: oc-fly 0.9s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+
+.oc-piece .oc-photo {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@keyframes oc-fly {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+  65% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.8); }
+}
+
+/* ---------- 유죄: 가상 쓰레기통 ---------- */
+
+.oc-bin {
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  z-index: 3;
+  width: 38%;
+  height: auto;
+  transform: translateX(-50%);
+  animation: oc-bin-in 0.3s ease-out both;
+}
+
+@keyframes oc-bin-in {
+  from { opacity: 0; transform: translate(-50%, 30%); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.oc-bin-lid {
+  transform-box: fill-box;
+  transform-origin: 96% 100%;
+}
+
+.oc-stage .oc-bin-lid {
+  animation: oc-lid 1.5s ease-in-out both;
+}
+
+@keyframes oc-lid {
+  0% { transform: rotate(0deg); }
+  18%, 72% { transform: rotate(38deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.oc-object--toss {
+  animation: oc-toss 1.15s cubic-bezier(0.45, 0, 0.75, 0.55) 0.25s forwards;
+}
+
+@keyframes oc-toss {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  30% { opacity: 1; transform: translate(-50%, -70%) scale(0.82) rotate(-10deg); }
+  85% { opacity: 1; transform: translate(-50%, 2%) scale(0.3) rotate(26deg); }
+  100% { opacity: 0; transform: translate(-50%, 14%) scale(0.2) rotate(32deg); }
+}
+
+/* ---------- 도구 선택과 안내 카드 ---------- */
+
+.oc-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.oc-tool {
+  display: grid;
+  justify-items: center;
+  gap: 0.375rem;
+  min-height: 5.5rem;
+  padding: 0.75rem;
+  border: 1.5px solid rgb(226 184 87 / 0.55);
+  border-radius: 1rem;
+  background: var(--oc-panel);
+  color: var(--oc-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.oc-tool:hover {
+  border-color: var(--oc-gold);
+  background: #22305a;
+}
+
+.oc-tool__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.oc-card {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1.25rem;
+  border: 1px solid rgb(226 184 87 / 0.4);
+  border-radius: 1rem;
+  background: var(--oc-panel);
+  text-align: left;
+  animation: oc-card-in 0.45s ease-out both;
+}
+
+@keyframes oc-card-in {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.oc-card__title {
+  margin: 0;
+  color: var(--oc-gold);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.oc-card__warning {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid rgb(226 104 90 / 0.55);
+  border-radius: 0.75rem;
+  background: rgb(226 104 90 / 0.14);
+  color: #ffd9d3;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.oc-card__list {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+}
+
+.oc-card__list dt {
+  color: var(--oc-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.oc-card__list dd {
+  margin: 0.125rem 0 0;
+  line-height: 1.55;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.oc-card__note {
+  margin: 0;
+  color: var(--oc-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.oc-card .oc-card__note {
+  text-align: left;
+}
+
+.oc-button {
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--oc-gold);
+  color: #1b1503;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.oc-button:hover {
+  filter: brightness(1.08);
+}
+
+.oc-tool:focus-visible,
+.oc-button:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* ---------- 폴백 캐릭터 ---------- */
+
+/* 원본 사진을 몸통으로 삼고 눈·팔·다리를 얹는다. 좌표계는 SVG viewBox 200×230 */
+.oc-fallback {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 200 / 230;
+  margin-inline: auto;
+  animation: oc-bob 2.6s ease-in-out infinite;
+}
+
+.oc-fallback__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* SVG 좌표 (28, 10) 144×168, 모서리 22 와 같은 자리 */
+.oc-fallback__photo {
+  position: absolute;
+  left: 14%;
+  top: 4.35%;
+  display: block;
+  width: 72%;
+  height: 73.04%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 15.3% / 13.1%;
+  background: #f4efe2;
+  user-select: none;
+}
+
+@keyframes oc-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5%); }
+}
+
+.oc-fallback__arm--right {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: oc-wave 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes oc-wave {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(9deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oc-fallback,
+  .oc-fallback__arm--right {
+    animation: none;
+  }
+}
+
+/* ---------- 모션 줄이기: 흔들림·파편 없이 페이드와 상태 변경만 ---------- */
+
+.oc-object--fade {
+  animation: oc-fade-out 0.45s linear forwards;
+}
+
+.oc-reduced .oc-swap-out {
+  animation: oc-fade-out 0.3s linear forwards;
+}
+
+.oc-reduced .oc-swap-in {
+  animation: oc-fade-in 0.3s linear forwards;
+}
+
+.oc-reduced .oc-object--return {
+  animation: none;
+  transform: translate(-50%, -5%) scale(0.5);
+}
+
+.oc-reduced .oc-hand--rise {
+  animation: none;
+  transform: translate(-50%, 0);
+}
+
+.oc-reduced .oc-gavel--strike {
+  animation: none;
+  opacity: 1;
+  transform: rotate(-72deg);
+}
+
+.oc-reduced .oc-bin,
+.oc-reduced .oc-bin-lid,
+.oc-reduced .oc-card {
+  animation: none;
+}
+
+.oc-reduced .oc-glow {
+  transition: none;
+}
+
