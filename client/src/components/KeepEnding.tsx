@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import { HandArt } from '../assets/EndingArt';
 import type { Trial } from '../types/trial';
 import { FallbackCharacter } from './FallbackCharacter';
-import '../styles/animations.css';
 
 type KeepEndingProps = {
   trial: Trial;

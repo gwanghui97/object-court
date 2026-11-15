@@ -17,6 +17,9 @@
 .oc-ending--keep .oc-ending__heading .eyebrow { color: var(--verdict-keep); }
 .oc-ending--discard .oc-ending__heading .eyebrow { color: var(--verdict-discard); }
 .oc-ending > .oc-status, .oc-ending > .oc-card, .oc-ending > .oc-tools, .oc-ending > .oc-card__note { grid-column: 2; }
+.oc-ending > .oc-status { grid-row: 2; align-self: start; }
+.oc-ending > .oc-card, .oc-ending > .oc-tools { grid-row: 3; }
+.oc-ending > .oc-card__note { grid-row: 4; }
 .oc-stage {
   grid-column: 1;
   grid-row: 1 / 6;

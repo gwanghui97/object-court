@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 import { CrackArt, GavelArt, TrashBinArt } from '../assets/EndingArt';
 import type { Trial, VirtualTool } from '../types/trial';
 import { FallbackCharacter } from './FallbackCharacter';
-import '../styles/animations.css';
 
 type DiscardEndingProps = {
   trial: Trial;

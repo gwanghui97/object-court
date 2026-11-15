@@ -192,13 +192,16 @@ function Analyzing({
   const [slow, setSlow] = useState(false);
   const [recordStep, setRecordStep] = useState(0);
   useEffect(() => {
+    setSlow(false);
+    setRecordStep(0);
+    if (error) return;
     const timers = [
       window.setTimeout(() => setRecordStep(1), 3000),
       window.setTimeout(() => setRecordStep(2), 8000),
       window.setTimeout(() => setSlow(true), 20_000),
     ];
     return () => timers.forEach(window.clearTimeout);
-  }, []);
+  }, [trial.id, error]);
 
   return (
     <section className={`${card} analysis-sheet`}>

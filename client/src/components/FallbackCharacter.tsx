@@ -1,5 +1,3 @@
-import '../styles/animations.css';
-
 type FallbackCharacterProps = {
   /** 원본 사진 주소 (object URL, data URL, 정적 파일 경로) */
   src: string;
