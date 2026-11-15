@@ -84,7 +84,7 @@ export function KeepEnding({ trial, onDone }: KeepEndingProps) {
     >
       <div className="oc-stage">
         <div className={`oc-glow${returning ? ' oc-glow--on' : ''}`} aria-hidden="true" />
-        {returning && <HandArt className="oc-hand oc-hand--rise" />}
+        <HandArt className={`oc-hand${returning ? ' oc-hand--rise' : ''}`} />
 
         <div className={`oc-object${returning ? ' oc-object--return' : ''}`}>
           <img
