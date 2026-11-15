@@ -49,18 +49,17 @@ export function EvidenceUpload({ onSubmit, onSample, error, sampleFirst }: Props
       void submit();
     }}>
       <div className="evidence-form__heading">
-        <div><p className="eyebrow">사건 접수처</p><h2 id={`${fileId}-title`}>오늘의 피고인은 누구인가요?</h2></div>
-        <UiIcon name="document" />
+        <div><p className="eyebrow">01 / FILE A CASE</p><h2 id={`${fileId}-title`}>새 사건 접수</h2><p className="evidence-form__intro">버릴까 고민되는 물건을 데려와 주세요.</p></div>
       </div>
       <label htmlFor={fileId} className={`evidence-envelope${dragging ? ' is-dragging' : ''}${preview ? ' has-photo' : ''}`}
         onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={(event) => { event.preventDefault(); setDragging(false); const dropped = event.dataTransfer.files[0]; if (dropped && !busy) setFile(dropped); }}>
-        <span className="evidence-envelope__number">증 제 001호</span>
+        <span className="evidence-envelope__number">사진 1장</span>
         {preview ? (
           <><img src={preview} alt="선택한 증거 사진" /><span className="evidence-envelope__change">사진 변경하기 <UiIcon name="restart" /></span></>
         ) : (
-          <><span className="evidence-envelope__icon"><UiIcon name="camera" /></span><strong>증거 사진 제출</strong><span className="evidence-envelope__hint">사진을 끌어 놓거나 눌러서 선택하세요</span><span className="evidence-envelope__formats">JPG · PNG · WebP / 최대 20MB</span></>
+          <><span className="evidence-envelope__icon" aria-hidden="true">+</span><strong>물건 사진 올리기</strong><span className="evidence-envelope__hint">클릭하거나 여기로 끌어 놓으세요</span><span className="evidence-envelope__formats">JPG, PNG, WebP · 20MB 이하</span></>
         )}
         <input id={fileId} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={busy}
           onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
@@ -72,7 +71,7 @@ export function EvidenceUpload({ onSubmit, onSample, error, sampleFirst }: Props
       </div>
       {error && <p role="alert" className="court-error">{error}</p>}
       <button type="submit" className={`${btnPrimary} evidence-form__submit`} disabled={!file || busy} aria-describedby={privacyId}>
-        <UiIcon name="scales" />{busy ? '증거 사진 준비 중…' : '피고인 소환하기'}<UiIcon name="arrow" />
+        {busy ? '증거 사진 준비 중…' : '피고인 소환하기'}<UiIcon name="arrow" />
       </button>
       <p className="evidence-form__caution">사진만으로 내부 고장 여부를 확정할 수 없습니다.</p>
       <details className="evidence-privacy" id={privacyId}>
@@ -84,17 +83,16 @@ export function EvidenceUpload({ onSubmit, onSample, error, sampleFirst }: Props
 
   const samples = (
     <section key="sample" className="sample-cases" aria-labelledby={`${fileId}-samples`}>
-      <div className="sample-cases__heading"><h2 id={`${fileId}-samples`}>사진이 없으신가요?</h2><span>샘플 재판으로 먼저 만나보세요</span></div>
+      <div className="sample-cases__heading"><h2 id={`${fileId}-samples`}>먼저 한 번 해보기</h2><span>사진 없이, 샘플 재판</span></div>
       <div className="sample-cases__list">
         {SAMPLE_KEYS.map((key) => (
           <button key={key} type="button" className="sample-defendant" onClick={() => onSample(key)}>
-            <img src={SAMPLE_TRIALS[key].characterImage} alt="" draggable={false} />
+            <span className="sample-defendant__index">{key === 'bottle' ? '01' : '02'}</span>
             <span><strong>{SAMPLE_TRIALS[key].analysis.defendantName}</strong><small>{key === 'bottle' ? '흠집은 있지만, 아직 쓸 만해요' : '한쪽이 조용해진 사연'}</small></span>
             <UiIcon name="arrow" />
           </button>
         ))}
       </div>
-      <p className="sample-cases__note">미리 준비된 이야기로 진행하는 데모입니다.</p>
     </section>
   );
 

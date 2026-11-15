@@ -89,7 +89,7 @@ const audio = Buffer.from(await speech.arrayBuffer());
 - **음성 비용:** 재판당 변론 1회(심문 답변 1회는 P1). 같은 텍스트를 다시 합성하지 않는다. 다시 듣기는 클라이언트가 받아 둔 오디오를 쓴다.
 - **음성 설정:** 말 빠르기와 감정은 `instructions`로 지시한다. `speed` 파라미터를 쓰지 않는다. `instructions` 템플릿은 `TRD.md` §5.3.
 - **목소리:** 내장 13종(`alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, `shimmer`, `verse`, `marin`, `cedar`) 중에서만 고른다.
-- **타임아웃:** 분석 30초, 이미지 90초, 음성 20초, 심문 20초(`TRD.md` §5.6).
+- **타임아웃:** 분석 25초, 이미지 50초, 음성 20초, 심문 20초(`TRD.md` §5.6). Vercel 함수 한도 60초보다 짧아야 한다. 값의 단일 정의는 `server/lib/openai.ts`다.
 
 ## 오류 대응
 

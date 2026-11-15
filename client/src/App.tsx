@@ -53,17 +53,16 @@ export default function App() {
         {!trial && (
           <>
             <section className="home-intro">
-              <p className="eyebrow home-intro__eyebrow"><span />물건에게도 할 말이 있으니까.</p>
-              <h1>버리기 전에,<br /><em>변론부터</em> 들어보세요.</h1>
-              <p className="home-intro__description">당신이 버리려던 그 물건, 마지막으로 할 말이 있대요.<br />사진 한 장으로 시작되는 작고 진지한 재판극.</p>
+              <p className="eyebrow home-intro__eyebrow">버려지기 직전의 물건들을 위한 마지막 법정</p>
+              <h1>버릴까,<br />말까<span className="home-title-period">.</span></h1>
+              <p className="home-intro__description">결정은 잠깐 미루고,<br />물건의 이야기를 들어보세요.</p>
               <div className="home-scene" aria-label="평범한 물통이 법정의 피고인이 된 모습">
-                <div className="home-scene__arch" aria-hidden="true"><UiIcon name="scales" /></div>
-                <div className="home-scene__evidence"><span>증거물 A</span><img src={SAMPLE_TRIALS.bottle.sourceImage} alt="원래 물통" draggable={false} /><small>그냥 물통이었는데…</small></div>
+                <span className="home-scene__index">오늘의 피고인 / 001</span>
+                <div className="home-scene__evidence"><img src={SAMPLE_TRIALS.bottle.sourceImage} alt="원래 물통" draggable={false} /><span>BEFORE</span></div>
                 <img className="home-scene__defendant" src={SAMPLE_TRIALS.bottle.characterImage} alt="마지막 변론을 준비하는 물통 피고인" draggable={false} />
-                <span className="home-scene__aside">“아직, 할 말이 있어요.”</span>
-                <div className="home-scene__bench"><span>피 고 인 석</span></div>
+                <div className="home-scene__caption"><strong>물통 씨</strong><span>“흠집 좀 났다고, 끝은 아니잖아요.”</span></div>
               </div>
-              <p className="home-intro__principle"><UiIcon name="scales" />AI는 변론합니다. <strong>판결은 당신이 내립니다.</strong></p>
+              <p className="home-intro__principle">AI는 변론을,<br /><strong>당신은 판결을.</strong></p>
             </section>
             <EvidenceUpload onSubmit={startTrial} onSample={startDemo} error={error} sampleFirst={SAMPLE_FIRST} />
           </>
@@ -76,7 +75,7 @@ export default function App() {
         {/* 반대 심문(examination)은 법정 화면 안에서 진행한다. 질문에 답이 나오면 단계만 examination 으로 바뀐다. */}
         {trial && analysis && inCourt && (
           <>
-          <div className="screen-heading"><div><p className={eyebrow}>THE LAST DEFENSE</p><h1>피고인의 이야기를 들어주세요.</h1></div><span className="court-chip">{analysis.objectName} · 심리 중</span></div>
+          <div className="screen-heading"><div><p className={eyebrow}>02 / THE LAST DEFENSE</p><h1>피고인, 발언하세요.</h1></div><span className="court-chip">{analysis.objectName} · 심리 중</span></div>
           <div className="courtroom-layout">
             <div className="courtroom-character">
             <DefendantStage

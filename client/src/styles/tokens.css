@@ -1,17 +1,17 @@
 /* Object Court · DESIGN.md의 고유 디자인 토큰 */
 :root {
-  --paper: #f5f0e6;
-  --paper-deep: #e9dfcb;
-  --ink: #26221d;
-  --wood: #543a2a;
-  --wood-dark: #34241c;
-  --brass: #b18c4b;
+  --paper: #f6f5f0;
+  --paper-deep: #e8e9e0;
+  --ink: #252922;
+  --wood: #343d2e;
+  --wood-dark: #252922;
+  --brass: #66704e;
   --verdict-keep: #2e6954;
   --verdict-discard: #9a4538;
-  --muted: #766f66;
-  --line: #cbbfae;
-  --sheet: #fcf9f2;
+  --muted: #72766b;
+  --line: #d1d3c8;
+  --sheet: #f6f5f0;
   --font-serif: 'Noto Serif KR', 'AppleMyungjo', 'Batang', Georgia, serif;
-  --radius-sheet: 6px;
-  --radius-button: 8px;
+  --radius-sheet: 0;
+  --radius-button: 0;
 }
