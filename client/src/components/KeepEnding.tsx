@@ -82,6 +82,7 @@ export function KeepEnding({ trial, onDone }: KeepEndingProps) {
       className={`oc-ending oc-ending--keep${reduced ? ' oc-reduced' : ''}`}
       aria-label="무죄 엔딩"
     >
+      <div className="oc-ending__heading"><p className="eyebrow">CASE CLOSED · 무죄</p><h1>다시 함께하기로 했습니다.</h1><p>익숙한 자리에서, 새로운 이야기를.</p></div>
       <div className="oc-stage">
         <div className={`oc-glow${returning ? ' oc-glow--on' : ''}`} aria-hidden="true" />
         <HandArt className={`oc-hand${returning ? ' oc-hand--rise' : ''}`} />
@@ -117,7 +118,7 @@ export function KeepEnding({ trial, onDone }: KeepEndingProps) {
 
       {phase === 'done' && (
         <div className="oc-card oc-card--keep">
-          <h2 className="oc-card__title">다시 함께하기로 했습니다</h2>
+          <h2 className="oc-card__title">함께하기 전, 한 번만 확인해 주세요.</h2>
           <dl className="oc-card__list">
             <div>
               <dt>계속 쓰기 전에</dt>
@@ -128,7 +129,7 @@ export function KeepEnding({ trial, onDone }: KeepEndingProps) {
             AI가 사진을 보고 낸 참고 의견입니다. 실제 상태는 직접 확인해 주세요.
           </p>
           <button type="button" className="oc-button" onClick={finish}>
-            결과 보기
+            판결문 확인하기
           </button>
         </div>
       )}

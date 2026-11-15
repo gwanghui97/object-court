@@ -1,0 +1,38 @@
+/* DESIGN.md: 입장 450ms, 진술서 250ms, 판결 도장 550ms */
+@keyframes court-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes court-talk {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes court-stamp {
+  0% { opacity: 0; transform: scale(1.6) rotate(-16deg); }
+  55% { opacity: 1; transform: scale(.96) rotate(-10deg); }
+  72% { transform: scale(1.03) rotate(-10deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-10deg); }
+}
+@keyframes court-sound {
+  0%, 100% { transform: scaleY(.35); }
+  50% { transform: scaleY(1); }
+}
+@keyframes court-cursor {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.defendant-enter { animation: court-enter 450ms ease-out both; }
+.defendant-speaking { animation: court-talk 700ms ease-in-out infinite; }
+.defense-speech { animation: court-enter 250ms ease-out both; }
+.verdict-seal > span { animation: court-stamp 550ms ease-out both; }
+.speech-bars > i { animation: court-sound 700ms ease-in-out infinite; }
+.speech-bars > i:nth-child(2) { animation-delay: 160ms; }
+.speech-bars > i:nth-child(3) { animation-delay: 320ms; }
+.speech-bars > i:nth-child(4) { animation-delay: 100ms; }
+.analysis-record > li[aria-current] > strong::after { animation: court-cursor 1s steps(1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .defendant-enter, .defendant-speaking, .defense-speech, .verdict-seal > span,
+  .speech-bars > i, .analysis-record > li[aria-current] > strong::after { animation: none; }
+}

@@ -1,0 +1,84 @@
+/* 작은 화면에서도 브랜드와 조작 버튼의 자리를 확보한다. */
+@media (max-width: 959px) {
+  .court-header__project {
+    display: none;
+  }
+
+  .court-header__brand {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .court-header__emblem {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    place-items: center;
+  }
+
+  .court-header__brand > span:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 0.2rem;
+  }
+
+  .court-header__wordmark {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .court-header__english {
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  .trial-progress__case {
+    display: none;
+  }
+
+  .trial-progress > ol {
+    gap: 0.5rem;
+  }
+
+  .trial-progress li > span > svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .court-header__english {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .app-shell--court {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+  }
+
+  .court-verdict-action {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line, #cbbfae);
+    background: var(--paper, #f5f0e6);
+  }
+
+  .court-verdict-action > button {
+    width: 100%;
+  }
+
+  .courtroom-content :is(button, input, summary) {
+    scroll-margin-bottom: 7.5rem;
+  }
+}

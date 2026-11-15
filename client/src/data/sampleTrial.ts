@@ -9,7 +9,7 @@ export type SampleTrial = {
   /** 홈 화면의 버튼 문구 */
   label: string;
   reason: string;
-  /** 원래 물건 그림. 직접 그린 SVG 다. */
+  /** 캐릭터와 같은 스타일의 원래 물건 그림. */
   sourceImage: string;
   /** 미리 만든 캐릭터 이미지. 없으면 폴백 캐릭터를 쓴다. */
   characterImage?: string;
@@ -23,7 +23,7 @@ export const SAMPLE_TRIALS: Record<SampleKey, SampleTrial> = {
     key: 'bottle',
     label: '물통 (무죄 샘플)',
     reason: '겉에 흠집이 많아서 버리려고요',
-    sourceImage: '/demo/bottle/source.svg',
+    sourceImage: '/demo/bottle/source.png',
     characterImage: '/demo/bottle/character.png',
     speechAudio: '/demo/bottle/defense.mp3',
     analysis: {
@@ -45,7 +45,7 @@ export const SAMPLE_TRIALS: Record<SampleKey, SampleTrial> = {
     key: 'earphone',
     label: '이어폰 (유죄 샘플)',
     reason: '한쪽이 안 들려요',
-    sourceImage: '/demo/earphone/source.svg',
+    sourceImage: '/demo/earphone/source.png',
     characterImage: '/demo/earphone/character.png',
     analysis: {
       objectName: '무선 이어폰',

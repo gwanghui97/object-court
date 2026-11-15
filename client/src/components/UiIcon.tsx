@@ -1,4 +1,4 @@
-type Props = { name: 'sound' | 'muted' | 'restart' | 'arrow' | 'chevron'; className?: string };
+type Props = { name: 'sound' | 'muted' | 'restart' | 'arrow' | 'chevron' | 'scales' | 'camera' | 'check' | 'document'; className?: string };
 
 export function UiIcon({ name, className }: Props) {
   return (
@@ -9,6 +9,10 @@ export function UiIcon({ name, className }: Props) {
       {name === 'restart' && <><path d="M4 10a8 8 0 1 1 1.5 7" /><path d="M4 4v6h6" /></>}
       {name === 'arrow' && <path d="M4 12h16m-6-6 6 6-6 6" />}
       {name === 'chevron' && <path d="m6 9 6 6 6-6" />}
+      {name === 'scales' && <><path d="M12 3v17M7 21h10M4 7h16M5 7l-4 8h8L5 7Zm14 0-4 8h8l-4-8Z" /><path d="M1 15a4 4 0 0 0 8 0m6 0a4 4 0 0 0 8 0" /></>}
+      {name === 'camera' && <><path d="M4 7h4l2-3h4l2 3h4v13H4z" /><circle cx="12" cy="13" r="4" /></>}
+      {name === 'check' && <path d="m5 12 4 4L19 6" />}
+      {name === 'document' && <><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h5" /></>}
     </svg>
   );
 }

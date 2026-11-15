@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useSpeech } from '../hooks/useSpeech';
 import { btnPrimary, chip } from '../lib/ui';
+import { UiIcon } from './UiIcon';
 
 type Props = {
   text: string;
@@ -60,10 +61,12 @@ export function SpeechPlayer({
   const label = status === 'loading' ? '준비 중…' : playing ? '정지' : speech.hasPlayed ? '다시 듣기' : idleLabel;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <button type="button" className={btnPrimary} onClick={speech.listen} disabled={status === 'loading'}>
+    <div className="speech-player">
+      <button type="button" className={`${btnPrimary} speech-player__button`} onClick={speech.listen} disabled={status === 'loading'} aria-pressed={playing}>
+        <UiIcon name="sound" />
         {label}
       </button>
+      {playing && <span className="speech-bars" aria-hidden="true"><i /><i /><i /><i /></span>}
       <span className={chip}>
         {speech.usingDeviceVoice ? (playing ? '기기 음성으로 읽는 중' : '기기 음성') : 'AI 생성 음성'}
       </span>

@@ -4,6 +4,18 @@
 
 **16:11 변경:** 배포 대상이 Replit 에서 **Vercel** 로 바뀌었고 마감이 **17:00** 으로 당겨졌다. 17:00 에 공개 URL 에서 전체 재판이 돌아야 한다.
 
+## 16:32 현황
+
+- **운영 주소: https://object-court-trial.vercel.app** (커밋 `e8de05d`, `/api/health` → `aiConfigured:true`).
+- `object-court-seven.vercel.app` 은 쓰지 않는다. 16:27 에 프로젝트에 `object-court.com` 이 추가되면서 그쪽으로 307 리다이렉트되고, 그 도메인은 DNS 가 없다. 고치려면 Vercel 대시보드 Settings → Domains 에서 `object-court.com` 을 지운다.
+- 커밋: `49b1d2a`(앱·Vercel 구성), `413944c`(엔딩 그림 PNG), `e8de05d`(엔딩 그림 축소 사본).
+- 배포본 검증: 서버·자산 16개 항목 통과(`y-ai-ee`), 샘플 재판 390px 통과(`y-ai-f8`). 배포본에서의 실제 OpenAI 호출, 실제 소리, 휴대폰 실기기는 미확인.
+- `y-ai-c5` 는 16:31 에 종료됐다. 루트 설정·`vercel.json`·`api/`·`server/index.ts`·`server/app.ts` 는 `y-ai-ee`, 화면 파일과 `README.md` 는 `y-ai-f8` 이 맡는다.
+- Codex 가 화면 파일·글꼴·샘플 그림을 고치는 중이고 전부 미커밋이다. 배포에 넣을지는 사용자 결정 대기.
+- 공개 주소에는 실제 키가 실려 있다. 검증은 `?demo=1` 이거나 `/api` 를 가로챈 경우에만 한다.
+
+아래는 16:13 에 쓴 계획이다. 주소와 소유 범위는 위 내용이 우선한다.
+
 ## 지금 상태 (16:13)
 
 | 항목 | 상태 |

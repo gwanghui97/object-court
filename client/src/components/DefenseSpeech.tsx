@@ -1,5 +1,5 @@
 // 최후 변론: 자막은 음성 상태와 무관하게 항상 전부 보여 준다 (TRD §7 음성 재생)
-import { card, eyebrow } from '../lib/ui';
+import { eyebrow } from '../lib/ui';
 import { SpeechPlayer } from './SpeechPlayer';
 
 type Props = {
@@ -26,11 +26,11 @@ export function DefenseSpeech({
   onSpeakingChange,
 }: Props) {
   return (
-    <section className={card}>
-      <h2 className={eyebrow}>최후 변론</h2>
-      <blockquote className="mt-2">
-        <p className="font-display text-lg leading-relaxed">“{text}”</p>
-        <footer className="mt-2 text-sm text-court-300">— {defendantName}</footer>
+    <section className="defense-speech">
+      <div className="defense-speech__heading"><h2 className={eyebrow}>피고인 진술서</h2><span>최후 변론</span></div>
+      <blockquote>
+        <p>{text}</p>
+        <footer><span>이상, 저의 마지막 변론입니다.</span><strong>{defendantName} 올림</strong></footer>
       </blockquote>
 
       <div className="mt-4">

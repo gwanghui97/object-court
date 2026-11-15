@@ -23,9 +23,9 @@ interface CSSVars extends CSSProperties {
 
 // 망치 연출 시각(ms). animations.css 의 oc-strike 타격 지점(0.62s × 78%)과 맞춘다.
 const HAMMER_IMPACT_AT = 480;
-const HAMMER_SHATTER_AT = 980;
-const HAMMER_DONE_AT = 1950;
-const TRASH_DONE_AT = 1650;
+const HAMMER_SHATTER_AT = 580;
+const HAMMER_DONE_AT = 950;
+const TRASH_DONE_AT = 750;
 const REDUCED_DONE_AT = 600;
 
 // 3×3 파편이 날아가는 방향(물건 크기 대비 %)과 회전(deg).
@@ -151,6 +151,7 @@ export function DiscardEnding({ trial, onDone }: DiscardEndingProps) {
       className={`oc-ending oc-ending--discard${reduced ? ' oc-reduced' : ''}`}
       aria-label="유죄 엔딩"
     >
+      <div className="oc-ending__heading"><p className="eyebrow">CASE CLOSED · 유죄</p><h1>이제, 보내줄 시간입니다.</h1><p>함께했던 물건과 마지막 인사를 나눠요.</p></div>
       <div className="oc-stage">
         {phase !== 'done' && (
           <div className={objectClass}>
@@ -210,7 +211,7 @@ export function DiscardEnding({ trial, onDone }: DiscardEndingProps) {
 
       {phase === 'done' && (
         <div className="oc-card oc-card--discard">
-          <h2 className="oc-card__title">가상 집행이 끝났습니다</h2>
+          <h2 className="oc-card__title">판결은 끝났습니다.<br />현실에서는 올바르게 처리해 주세요.</h2>
           <p className="oc-card__warning">{VIRTUAL_NOTICE}</p>
           <dl className="oc-card__list">
             <div>
@@ -223,10 +224,10 @@ export function DiscardEnding({ trial, onDone }: DiscardEndingProps) {
             </div>
           </dl>
           <p className="oc-card__note">
-            배출 안내는 일반 참고 정보입니다. 지역과 품목에 따라 다르니 따로 확인해 주세요.
+            지자체 안내 확인 필요 · 배출 규칙은 지역과 품목에 따라 다릅니다.
           </p>
           <button type="button" className="oc-button" onClick={finish}>
-            결과 보기
+            판결문 확인하기
           </button>
         </div>
       )}

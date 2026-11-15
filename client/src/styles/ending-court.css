@@ -1,0 +1,59 @@
+/* 엔딩 연출의 좌표·자산은 유지하고, 공통 법정 디자인에 맞춘다. */
+.oc-ending {
+  --oc-panel: var(--sheet);
+  --oc-gold: var(--wood);
+  --oc-ink: var(--ink);
+  --oc-muted: var(--muted);
+  --oc-warm: var(--brass);
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  justify-items: stretch;
+  gap: 24px 48px;
+  max-width: 1000px;
+}
+.oc-ending__heading { grid-column: 2; grid-row: 1; padding-top: 16px; }
+.oc-ending__heading h1 { margin-top: 16px; font-family: var(--font-serif); font-size: 28px; font-weight: 600; line-height: 1.4; letter-spacing: -.04em; }
+.oc-ending__heading > p:last-child { margin-top: 16px; color: var(--muted); font-size: 13px; }
+.oc-ending--keep .oc-ending__heading .eyebrow { color: var(--verdict-keep); }
+.oc-ending--discard .oc-ending__heading .eyebrow { color: var(--verdict-discard); }
+.oc-ending > .oc-status, .oc-ending > .oc-card, .oc-ending > .oc-tools, .oc-ending > .oc-card__note { grid-column: 2; }
+.oc-stage {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-bottom: 8px solid var(--wood);
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 30%, #fcf9f2, #e9dfcb);
+  box-shadow: none;
+}
+.oc-object { border-radius: 6px; }
+.oc-status { font-size: 12px; text-align: left; }
+.oc-ending .oc-photo { object-fit: contain; box-shadow: none; }
+.oc-glow { background: radial-gradient(60% 50% at 50% 64%, #b18c4b28, transparent 70%); }
+.oc-object--return { animation: oc-return .9s cubic-bezier(.3, .7, .2, 1) forwards; }
+.oc-spark { border-radius: 1px; box-shadow: none; animation: oc-spark .9s ease-out var(--delay) both; }
+.oc-piece { animation-duration: .35s; }
+.oc-object--toss { animation: oc-toss .65s cubic-bezier(.45, 0, .75, .55) .1s forwards; }
+.oc-tool, .oc-card { border: 1px solid var(--line); border-radius: 6px; }
+.oc-tool:hover { border-color: var(--brass); background: var(--paper-deep); }
+.oc-card__title { color: var(--wood); font-family: var(--font-serif); font-size: 20px; font-weight: 600; line-height: 1.6; }
+.oc-card__warning { border: 0; border-left: 2px solid var(--verdict-discard); border-radius: 2px; background: #9a453808; color: var(--verdict-discard); font-size: 12px; font-weight: 400; }
+.oc-card__list dt { font-size: 12px; font-weight: 600; }
+.oc-card__list dd { font-size: 13px; line-height: 1.8; }
+.oc-card__note { font-size: 11px; }
+.oc-button { border-radius: 8px; color: var(--paper); background: var(--wood); font-size: 14px; font-weight: 600; }
+.oc-button:hover { filter: none; background: var(--wood-dark); }
+.oc-tool:focus-visible, .oc-button:focus-visible { outline: 2px solid var(--brass); }
+.oc-fallback, .oc-fallback__arm--right { animation: none; }
+
+@media (max-width: 700px) {
+  .oc-ending { display: flex; flex-direction: column; align-items: stretch; gap: 20px; max-width: 440px; }
+  .oc-ending__heading { padding-top: 0; text-align: center; }
+  .oc-ending__heading h1 { margin-top: 12px; font-size: 24px; }
+  .oc-ending__heading > p:last-child { margin-top: 12px; font-size: 12px; }
+  .oc-stage { width: min(100%, 340px); align-self: center; }
+  .oc-status { text-align: center; font-size: 11px; }
+  .oc-card { padding: 20px; }
+  .oc-card__title { font-size: 18px; }
+}
