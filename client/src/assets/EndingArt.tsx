@@ -1,27 +1,46 @@
 // imagegen으로 제작한 무광 3D 소품. 균열 효과만 코드 기반 SVG를 쓴다.
+//
+// 화면에는 축소 사본(hands-768, gavel-512, bin-512)을 쓴다. 원본 3장은 합쳐 2.7MB 라
+// 느린 망에서 연출이 그림 없이 지나갔다(느린 4G 에서 손 그림이 10초 뒤에 떴다).
+// 사본은 합쳐 0.45MB 이고, 가장 크게 보이는 폭(약 320px)의 2배 이상이다.
 
 type ArtProps = { className?: string };
 
 const INK = '#0d1424';
 
+const HANDS_SRC = '/art/ending/hands-768.png';
+const GAVEL_SRC = '/art/ending/gavel-512.png';
+const BIN_SRC = '/art/ending/bin-512.png';
+
+// 판결 직후 연출이 그림 없이 시작되지 않도록, 앱이 뜨고 잠시 뒤에 미리 받아 둔다.
+if (typeof window !== 'undefined') {
+  window.setTimeout(() => {
+    for (const src of [HANDS_SRC, GAVEL_SRC, BIN_SRC]) {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    }
+  }, 1200);
+}
+
 /** 무죄 엔딩: 물건을 받아 드는 두 손 */
 export function HandArt({ className }: ArtProps) {
   return (
-    <img className={className} src="/art/ending/hands.png" width="1536" height="1024" alt="" aria-hidden="true" draggable={false} />
+    <img className={className} src={HANDS_SRC} width="768" height="512" alt="" aria-hidden="true" draggable={false} />
   );
 }
 
 /** 유죄 엔딩: 판사봉 모양의 가상 망치 */
 export function GavelArt({ className }: ArtProps) {
   return (
-    <img className={className} src="/art/ending/gavel.png" width="1254" height="1254" alt="" aria-hidden="true" draggable={false} />
+    <img className={className} src={GAVEL_SRC} width="512" height="512" alt="" aria-hidden="true" draggable={false} />
   );
 }
 
 /** 유죄 엔딩: 투입구가 보이도록 뚜껑이 열린 가상 쓰레기통 */
 export function TrashBinArt({ className }: ArtProps) {
   return (
-    <img className={className} src="/art/ending/bin.png" width="1254" height="1254" alt="" aria-hidden="true" draggable={false} />
+    <img className={className} src={BIN_SRC} width="512" height="512" alt="" aria-hidden="true" draggable={false} />
   );
 }
 
